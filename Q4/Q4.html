@@ -1,0 +1,299 @@
+<!DOCTYPE html>
+
+<!-- To view in browser: python3 -m http.server 8080 & -->
+<!-- Then visit http://0.0.0.0:8080/interactive.html in your browser -->
+<head>
+  <title>Games Rating: 2015 - 2019</title>
+  <meta charset="utf-8">
+  <style>
+    /*define CSS rules*/
+  </style>
+</head>
+
+<body>
+  <script type="text/javascript" src="../lib/d3.v5.min.js"></script>
+  <script type="text/javascript" src="../lib/d3-dsv.min.js"></script>
+
+  <!-- Example hiding an element -->
+  <!-- <g id="" style"display:none;" /> -->
+  <g id="hidden" style"display:none;" />
+
+  <!-- Example of styling an element -->
+  <!-- svg_element.style()-->
+
+  <script>
+    // define the dimensions and margins for the line chart
+    // Use the Margin Convention referenced in the HW document to layout your graph
+    var margin = {top: 50, right: 100, bottom: 50, left: 50}
+    let width = 600 - margin.left - margin.right
+    let height = 400 - margin.top - margin.bottom;
+
+    // define the dimensions and margins for the bar chart
+    // append svg element to the body of the page
+    // set dimensions and position of the svg element
+    let svg = d3
+      .select("body")
+      .append("svg")
+      .attr("id", "line_chart")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("id", "container")
+      .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
+
+    let titl = d3.select("body").append('div')
+                .attr("id", "bar_chart_title")
+                .attr("fill", "black")
+
+    let svg2 = d3
+      .select("body")
+      .append("svg")
+      .attr("id", "bar_chart")
+      .attr("width", width + margin.left + margin.right)
+      .attr("height", height + margin.top + margin.bottom)
+      .append("g")
+      .attr("id", "container_2")
+      .attr("transform",
+        "translate(" + margin.left + "," + margin.top + ")");
+
+
+
+    // Fetch the data
+	  var pathToCsv = "average-rating.csv";
+
+
+    d3.dsv(",", pathToCsv, function (d) {
+      d["average_rating_rounded"]=(Math.floor(parseFloat(d["average_rating"])))
+      return {
+        // format data attributes if required
+        d
+      }
+    }).then(function (data) {
+      console.log(data); // you should see the data in your browser's developer tools console
+
+      d3.select("#container")
+        .append('text')
+        .attr('id', 'line_chart_title')
+        .attr('x', width / 2)
+        .attr('y', 0)
+        .attr('text-anchor', 'middle')
+        .text('Board games by Rating 2015-2019');
+
+      d3.select("#container")
+        .append('text')
+        .attr('id', 'credit')
+        .attr('x', width / 2)
+        .attr('y', 15)
+        .attr('text-anchor', 'middle')
+        .attr("fill", "blue")
+        .text('nwang334');
+
+      let big_data = {};
+      let years = [2015, 2016, 2017, 2018, 2019]
+      let max_count = 0;
+
+      for (let i = 0; i < years.length; i++) {
+        let y = years[i];
+        let data_year = data.filter(d => d.d["year"] == y)
+        let temp_array = []
+        for (let j = 0; j < 10; j++) {
+          let max_users = 0;
+          let data_year_rank = data_year.filter(d => d.d["average_rating_rounded"] == j);
+          data_year_rank["count"] = data_year_rank.length;
+          data_year_rank["rank"] = j;
+          temp_array.push(data_year_rank);
+          if (max_count < data_year_rank.length) {
+            max_count = data_year_rank.length;
+          }
+
+          let data_copy = [...data_year_rank];
+          data_copy.sort(function(x, y){
+            return d3.descending(parseInt(x.d["users_rated"]), parseInt(y.d["users_rated"]));
+          })
+
+          let top_users = data_copy.slice(0, 5);
+
+          for (let k = 0; k < 5; k++) {
+            if (k < top_users.length && top_users[k]) {
+              top_users[k]["index"] = k;
+              top_users[k].d["name"] = top_users[k].d["name"].slice(0,10);
+            }
+          }
+
+          let res = []
+          for (let h = 5; h >= 0; h--) {
+            if (h < top_users.length && top_users[h]) {
+              res.push(top_users[h]);
+            }
+          }
+
+          data_year_rank["top_users"] = top_users;
+
+          if (top_users.length != 0) {
+            max_users = top_users[0].d["users_rated"]
+          }
+          data_year_rank["max_users"] = max_users;
+        }
+        big_data[y] = temp_array;
+      }
+
+      /* Create bar plot using data from csv */
+      let xScale = d3.scaleLinear().range([0, width]);
+      xScale.domain([0, 9]);
+      let yScale = d3.scaleLinear().range([height, 0]);
+      yScale.domain([0, max_count]);
+
+      let colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+      let xAxis = d3.select("#container").append("g")
+        .attr("id", "x-axis-lines")
+        .call(d3.axisBottom(xScale))
+        .attr('transform', `translate(0,${height})`)
+        .append("text")
+        .attr("x", width / 2)
+        .attr("y", 40)
+        .style("text-anchor", "middle")
+        .style("fill", "black")
+        .text("Rating")
+
+      let yAxis = d3.select("#container").append("g")
+        .attr("id", "y-axis-lines")
+        .call(d3.axisLeft(yScale))
+        .append("text")
+        .attr("x",-height/2)
+        .attr("y", -40)
+        .style("text-anchor", "middle")
+        .text("Count")
+        .attr("transform", "rotate(-90)")
+        .style("fill", "black")
+
+      console.log(xScale.range())
+
+      let lines = d3.select("#container").append("g")
+        .attr("id", "lines")
+
+      let line_gen = d3.line().x(function(d) {return xScale(+d.rank)}).y((d) => yScale(+d.count));
+      let circles = svg.append('g')
+        .attr("id", "circles")
+
+      let legend = d3.select("#container").append("g").attr("id", "legend")
+
+      for (let y = 0; y < years.length; y++) {
+        let dat = big_data[years[y]];
+        lines.append("path").attr("d", line_gen(dat)).attr("stroke", colorScale(y)).style("fill" ,"none");
+
+        circles.selectAll()
+          .data(dat)
+          .enter()
+          .append("circle")
+          .style("fill", colorScale(y))
+          .attr("cx", function (d) { return xScale(d.rank); } )
+          .attr("cy", function (d) { return yScale(d.count); } )
+          .attr("r", 3)
+          .on("mouseover", function(d) {
+            d3.select(this).attr("r", 7)
+            if (d["max_users"] != 0) {
+              makeBar(d[0].d["year"], d["rank"], d)
+
+            }
+          })
+          .on("mouseout", function(d) {
+            hideBar();
+            d3.select(this).attr("r", 3)
+          });
+
+        legend
+          .append("circle")
+          .attr("cx", width)
+          .attr("cy", y * 20)
+          .attr("r", 4)
+          .style("fill", colorScale(y));
+
+        legend
+          .append("text")
+          .attr("x", width+8)
+          .attr("y", y * 20 + 4)
+          .style("fill", "black")
+          .style("font-size", "12px")
+          .text(years[y]);
+      }
+
+      function makeBar(year, rating, list) {
+        hideBar();
+        d3.select("#bar_chart_title")
+          .text('Top 5 Most Rated Games of ' + year + ' with Rating ' + rating)
+          .style("display", "block")
+          .style("text-align", "center");
+
+        let barChart = d3.selectAll("#bar_chart")
+          .style("display", null)
+          .select("#container_2");
+
+        let xScaleBar = d3.scaleLinear().range([0, width]);
+        let yScaleBar = d3.scaleBand().range([0, height]).padding(0.2);
+
+
+        xScaleBar.domain([0, list["max_users"]]);
+        yScaleBar.domain(list.top_users.map(function(dd) {return dd.d["name"]}));
+
+        let xAxisBar = barChart.append("g")
+          .attr("id", "x-axis-bars")
+          .call(d3.axisBottom(xScaleBar).tickSizeInner(-height))
+          .attr('transform', `translate(${margin.left}, ${height})`)
+
+        let xaxislabel = barChart.append("text")
+          .attr("id", "bar_x_axis_label")
+          .attr("x", width / 2)
+          .attr("y", height + margin.bottom)
+          .style("fill", "black")
+          .style("text-anchor", "middle")
+          .text("Number of users");
+
+
+        let yAxisBar = barChart.append("g")
+          .attr("id", "y-axis-bars")
+          .attr('transform', `translate(${margin.left}, 0)`)
+          .call(d3.axisLeft(yScaleBar))
+
+        let yaxislabel = barChart.append("text")
+          .attr("id", "bar_y_axis_label")
+          .attr("transform", "rotate(-90)")
+          .attr("x", -height / 2)
+          .attr("y", -20)
+          .style("fill", "black")
+          .style("text-anchor", "middle")
+          .text("Games");
+
+        let barss = barChart.append("g").attr("id", "bars");
+
+        barss.selectAll()
+          .data(list.top_users)
+          .enter()
+          .append("rect")
+          .attr("x", margin.left)
+          .attr("y", function(d) { return yScaleBar(d.d["name"]) })
+          .attr("width", function(d) { return xScaleBar(d.d.users_rated); })
+          .attr("height", yScaleBar.bandwidth())
+          .style("fill", "blue")
+          .style("opacity", 0.7)
+      }
+
+    function hideBar() {
+      d3.select("div#bar_chart_title")
+        .style("display", "none")
+        .html("")
+      d3.select("svg#bar_chart")
+        .style("display", "none")
+        .select("g#container_2")
+        .html("")
+}
+
+
+    }).catch(function (error) {
+      console.log(error);
+    });
+
+
+  </script>
+</body>

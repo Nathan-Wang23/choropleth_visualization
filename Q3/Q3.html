@@ -1,0 +1,744 @@
+<!DOCTYPE html>
+
+<head>
+  <title>Line Charts</title>
+  <meta charset="utf-8">
+
+  <script type="text/javascript" src="../lib/d3.v5.min.js"></script>
+
+</head>
+
+<body>
+
+  <script>
+    var margin = {top: 20, right: 120, bottom: 30, left: 60}
+    let width = 960
+    let height = 500
+
+
+    const padding = 5;
+    const adj = 50;
+    const timeConv = d3.timeParse("%d-%b-%Y");
+    const svg = d3.select("body").append("svg")
+      .attr("id", "svg-a")
+      .attr("height", height)
+      .attr("width", width)
+      .style("padding", padding)
+      .style("margin", margin)
+      .classed("svg-content", true);
+
+    const xScale = d3.scaleTime().range([margin.left, width - margin.right]);
+    const yScale = d3.scaleLinear().range([height-margin.bottom, margin.top]);
+    const colorScale = d3.scaleOrdinal(d3.schemeCategory10);
+
+  // Add chart title
+  svg
+    .append('text')
+    .attr('id', 'title-a')
+    .attr('x', width / 2)
+    .attr('y', 15)
+    .attr('text-anchor', 'middle')
+    .text('Number of Ratings 2016-2020');
+
+    var parseTime = d3.timeParse('%b %y');
+    var timeForm = d3.timeFormat("%Y-%m-%d");
+
+    let plot = svg.append("g")
+     .attr("id", "plot-a")
+
+
+    // PLOT B
+    const svgB = d3.select("body").append("svg")
+      .attr("id", "svg-b")
+      .attr("height", height)
+      .attr("width", width)
+      .style("padding", padding)
+      .style("margin", margin)
+      .classed("svg-content", true);
+
+    const xScaleB = d3.scaleTime().range([margin.left, width - margin.right]);
+    const yScaleB = d3.scaleLinear().range([height-margin.bottom, margin.top]);
+    const colorScaleB = d3.scaleOrdinal(d3.schemeCategory10);
+
+    // Add chart title
+    svgB
+      .append('text')
+      .attr('id', 'title-b')
+      .attr('x', width / 2)
+      .attr('y', 15)
+      .attr('text-anchor', 'middle')
+      .text('Number of Ratings 2016-2020 with Rankings');
+
+    let plotB = svgB.append("g")
+     .attr("id", "plot-b")
+
+     let legend = svgB.append('g').attr("id", "legend-b")
+        .style("fill", "black");
+      legend.append('text')
+        .text("BoardGameGeek Rank")
+        .attr("font-size", "9px")
+        .attr('transform', `translate(${width-110},${height - 50})`)
+        .style("fill", "black");
+
+      legend.append('circle')
+        .attr("r", 15)
+        .attr('transform', `translate(${width-70},${height-80})`)
+
+      legend.append('text')
+        .text("Rank")
+        .attr('transform', `translate(${width-78},${height-78})`)
+        .style("fill", "white")
+        .attr("font-size", "9px")
+
+    // PLOT C
+    const svgC = d3.select("body").append("svg")
+      .attr("id", "svg-c-1")
+      .attr("height", height)
+      .attr("width", width)
+      .style("padding", padding)
+      .style("margin", margin)
+      .classed("svg-content", true);
+
+    const xScaleC = d3.scaleTime().range([margin.left, width - margin.right]);
+    const yScaleC = d3.scaleSqrt().range([height-margin.bottom, margin.top]);
+    const colorScaleC = d3.scaleOrdinal(d3.schemeCategory10);
+
+    // Add chart title
+    svgC
+      .append('text')
+      .attr('id', 'title-c-1')
+      .attr('x', width / 2)
+      .attr('y', 15)
+      .attr('text-anchor', 'middle')
+      .text('Number of Ratings 2016-2020 (Square root Scale)');
+
+    let plotC = svgC.append("g")
+     .attr("id", "plot-c-1")
+
+    let legendC = svgC.append('g').attr("id", "legend-c-1")
+      .style("fill", "black");
+    legendC.append('text')
+      .text("BoardGameGeek Rank")
+      .attr("font-size", "9px")
+      .attr('transform', `translate(${width-110},${height-50})`)
+
+    legendC.append('circle')
+      .attr("r", 15)
+      .attr('transform', `translate(${width-70},${height-80})`)
+
+    legendC.append('text')
+      .text("Rank")
+      .attr('transform', `translate(${width-78},${height-78})`)
+      .style("fill", "white")
+      .attr("font-size", "9px")
+
+
+    // PLOT D
+    const svgD = d3.select("body").append("svg")
+      .attr("id", "svg-c-2")
+      .attr("height", height)
+      .attr("width", width)
+      .style("padding", padding)
+      .style("margin", margin)
+      .classed("svg-content", true);
+
+    const xScaleD = d3.scaleTime().range([margin.left, width - margin.right]);
+    const yScaleD = d3.scaleLog().range([height-margin.bottom, margin.top]);
+    const colorScaleD = d3.scaleOrdinal(d3.schemeCategory10);
+
+    // Add chart title
+    svgD
+      .append('text')
+      .attr('id', 'title-c-2')
+      .attr('x', width / 2)
+      .attr('y', 15)
+      .attr('text-anchor', 'middle')
+      .text('Number of Ratings 2016-2020 (Log Scale)');
+
+    let plotD = svgD.append("g")
+     .attr("id", "plot-c-2")
+
+    let legendD = svgD.append('g').attr("id", "legend-c-2")
+      .style("fill", "black");
+    legendD.append('text')
+      .text("BoardGameGeek Rank")
+      .attr("font-size", "9px")
+      .attr('transform', `translate(${width-110},${height-50})`)
+
+    legendD.append('circle')
+      .attr("r", 15)
+      .attr('transform', `translate(${width-70},${height-80})`)
+
+    legendD.append('text')
+      .text("Rank")
+      .attr('transform', `translate(${width-78},${height-78})`)
+      .style("fill", "white")
+      .attr("font-size", "9px")
+
+
+    const dataset = d3.csv("boardgame_ratings.csv");
+
+    dataset.then(function(data) {
+      const arrayColumn = (arr, n) => arr.map(x => x[n]);
+        dates = arrayColumn(data, 'date');
+
+        catancounts = arrayColumn(data, 'Catan=count');
+        dominioncounts = arrayColumn(data, 'Dominion=count');
+        codenamescounts = arrayColumn(data, 'Codenames=count');
+        terracounts = arrayColumn(data, 'Terraforming Mars=count');
+        gloomhavencounts = arrayColumn(data, 'Gloomhaven=count');
+        magiccounts = arrayColumn(data, 'Magic: The Gathering=count');
+        dixitcounts = arrayColumn(data, 'Dixit=count');
+        monopolycounts = arrayColumn(data, 'Monopoly=count');
+
+        catanranks = arrayColumn(data, 'Catan=rank');
+        dominionranks = arrayColumn(data, 'Dominion=rank');
+        codenamesranks = arrayColumn(data, 'Codenames=rank');
+        terraranks = arrayColumn(data, 'Terraforming Mars=rank');
+        gloomhavenranks = arrayColumn(data, 'Gloomhaven=rank');
+        magicranks = arrayColumn(data, 'Magic: The Gathering=rank');
+        dixitranks = arrayColumn(data, 'Dixit=rank');
+        monopolyranks = arrayColumn(data, 'Monopoly=rank');
+
+        allcounts = [...catancounts,...dominioncounts,...codenamescounts,...terracounts,...gloomhavencounts,...magiccounts,...dixitcounts,...monopolycounts]
+
+        xScale.domain([new Date(d3.min(dates)), new Date(d3.max(dates))]);
+        yScale.domain([0, d3.max(allcounts)]);
+
+        catanData = []
+        for (let i = 0; i < catancounts.length; i++) {
+          catanData.push({"date": new Date(dates[i]), "count": catancounts[i], "rank": catanranks[i]})
+        }
+
+        dominionData = []
+        for (let i = 0; i < dominioncounts.length; i++) {
+          dominionData.push({"date": new Date(dates[i]), "count": dominioncounts[i], "rank": dominionranks[i]})
+        }
+
+        codenamesData = []
+        for (let i = 0; i < codenamescounts.length; i++) {
+          codenamesData.push({"date": new Date(dates[i]), "count": codenamescounts[i], "rank": codenamesranks[i]})
+        }
+
+        terraData = []
+        for (let i = 0; i < terracounts.length; i++) {
+          terraData.push({"date": new Date(dates[i]), "count": terracounts[i], "rank": terraranks[i]})
+        }
+
+        gloomhavenData = []
+        for (let i = 0; i < gloomhavencounts.length; i++) {
+          gloomhavenData.push({"date": new Date(dates[i]), "count": gloomhavencounts[i], "rank": gloomhavenranks[i]})
+        }
+
+        magicData = []
+        for (let i = 0; i < magiccounts.length; i++) {
+          magicData.push({"date": new Date(dates[i]), "count": magiccounts[i], "rank": magicranks[i]})
+        }
+
+        dixitData = []
+        for (let i = 0; i < dixitcounts.length; i++) {
+          dixitData.push({"date": new Date(dates[i]), "count": dixitcounts[i], "rank": dixitranks[i]})
+        }
+
+        monopolyData = []
+        for (let i = 0; i < monopolycounts.length; i++) {
+          monopolyData.push({"date": new Date(dates[i]), "count": monopolycounts[i], "rank": monopolyranks[i]})
+        }
+
+        // Add x-axis
+        let xaxis = plot
+          .append('g')
+          .attr('id', 'x-axis-a')
+          .attr('transform', `translate(0,${height-margin.bottom})`)
+          .call(
+            d3.axisBottom(xScale).tickFormat(d3.timeFormat('%b %y')).ticks(d3.timeMonth.every(3))
+          );
+
+        // Add y-axis
+        let yaxis = plot
+          .append('g')
+          .attr('id', 'y-axis-a')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(d3.axisLeft(yScale));
+
+
+         // Add x-axis label
+        xaxis
+          .append('text')
+          .attr('class', 'x-axis-label')
+          .attr('x', width / 2)
+          .attr('y', margin.bottom)
+          .attr('text-anchor', 'middle')
+          .style("fill", "black")
+          .text('Month');
+
+        // Add y-axis label
+        yaxis
+          .append('text')
+          .attr('class', 'y-axis-label')
+          .attr('transform', 'translate(40,0), rotate(-90)')
+          .attr('x', -height / 2)
+          .attr('y', -margin.left - 30)
+          .attr('text-anchor', 'middle')
+          .style("fill", "black")
+          .text('Num of Ratings');
+
+        let lines = plot.append("g")
+          .attr("id", "lines-a")
+
+        const catanline = d3.line().x((d) => xScale(d.date)).y((d) => yScale(d.count));
+        lines.append("path").attr("d", catanline(catanData)).attr("stroke", function(d) { return colorScale(0); }).style("fill" ,"none");
+        lines.append("path").attr("d", catanline(dominionData)).attr("stroke", function(d) { return colorScale(1); }).style("fill" ,"none");
+        lines.append("path").attr("d", catanline(codenamesData)).attr("stroke", function(d) { return colorScale(2); }).style("fill" ,"none");
+        lines.append("path").attr("d", catanline(terraData)).attr("stroke", function(d) { return colorScale(3); }).style("fill" ,"none");
+        lines.append("path").attr("d", catanline(gloomhavenData)).attr("stroke", function(d) { return colorScale(4); }).style("fill" ,"none");
+        lines.append("path").attr("d", catanline(magicData)).attr("stroke", function(d) { return colorScale(5); }).style("fill" ,"none");
+        lines.append("path").attr("d", catanline(dixitData)).attr("stroke", function(d) { return colorScale(6); }).style("fill" ,"none");
+        lines.append("path").attr("d", catanline(monopolyData)).attr("stroke", function(d) { return colorScale(7); }).style("fill" ,"none");
+
+        for (let i = 0; i < 8; i++) {
+          let dat = catanData;
+          let game = "Catan";
+          if (i==1){
+            dat = dominionData;
+            game = "Dominion";
+          } else if (i==2) {
+            dat = codenamesData;
+            game = "Codenames";
+          }else if (i==3) {
+            dat = terraData;
+            game = "Terraforming Mars"
+          }else if (i==4) {
+            dat = gloomhavenData;
+            game = "Gloomhaven";
+          }else if (i==5) {
+            dat = magicData;
+            game = "Magic: the Gathering";
+          } else if (i==6) {
+            dat = dixitData;
+            game = "Dixit";
+          }else if (i==7) {
+            dat = monopolyData;
+            game = "Monopoly";
+          }
+          lines
+            .append('text')
+            .attr('class', 'game-label')
+            .attr('transform', `translate(${xScale(dat[45].date)+10},${yScale(dat[45].count)})`)
+            .attr('x', 5)
+            .attr('dy', '0.35em')
+            .style('font-size', '12px')
+            .style('fill', colorScale(i))
+            .text(game);
+        }
+
+
+          // PLOT 2 ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+          xScaleB.domain([new Date(d3.min(dates)), new Date(d3.max(dates))]);
+          yScaleB.domain([0, d3.max(allcounts)]);
+          // Add x-axis
+          let xaxisB = plotB
+          .append('g')
+          .attr('id', 'x-axis-b')
+          .attr('transform', `translate(0,${height-margin.bottom})`)
+          .call(
+            d3.axisBottom(xScaleB).tickFormat(d3.timeFormat('%b %y')).ticks(d3.timeMonth.every(3))
+          );
+
+        // Add y-axis
+        let yaxisB = plotB
+          .append('g')
+          .attr('id', 'y-axis-b')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(d3.axisLeft(yScaleB));
+
+
+         // Add x-axis label
+        xaxisB
+          .append('text')
+          .attr('class', 'x-axis-label')
+          .attr('x', width / 2)
+          .attr('y', margin.bottom)
+          .attr('text-anchor', 'middle')
+          .style("fill", "black")
+          .text('Month');
+
+        // Add y-axis label
+        yaxisB
+          .append('text')
+          .attr('class', 'y-axis-label')
+          .attr('transform', 'translate(40,0), rotate(-90)')
+          .attr('x', -height / 2)
+          .attr('y', -margin.left - 30)
+          .attr('text-anchor', 'middle')
+          .style("fill", "black")
+          .text('Num of Ratings');
+
+        let linesB = plotB.append("g")
+          .attr("id", "lines-b")
+
+        const catanlineB = d3.line().x((d) => xScaleB(d.date)).y((d) => yScaleB(d.count));
+        linesB.append("path").attr("d", catanlineB(catanData)).attr("stroke", function(d) { return colorScale(0); }).style("fill" ,"none");
+        linesB.append("path").attr("d", catanlineB(dominionData)).attr("stroke", function(d) { return colorScale(1); }).style("fill" ,"none");
+        linesB.append("path").attr("d", catanlineB(codenamesData)).attr("stroke", function(d) { return colorScale(2); }).style("fill" ,"none");
+        linesB.append("path").attr("d", catanlineB(terraData)).attr("stroke", function(d) { return colorScale(3); }).style("fill" ,"none");
+        linesB.append("path").attr("d", catanlineB(gloomhavenData)).attr("stroke", function(d) { return colorScale(4); }).style("fill" ,"none");
+        linesB.append("path").attr("d", catanlineB(magicData)).attr("stroke", function(d) { return colorScale(5); }).style("fill" ,"none");
+        linesB.append("path").attr("d", catanlineB(dixitData)).attr("stroke", function(d) { return colorScale(6); }).style("fill" ,"none");
+        linesB.append("path").attr("d", catanlineB(monopolyData)).attr("stroke", function(d) { return colorScale(7); }).style("fill" ,"none");
+
+
+        for (let i = 0; i < 8; i++) {
+          let dat = catanData;
+          let game = "Catan";
+          if (i==1){
+            dat = dominionData;
+            game = "Dominion";
+          } else if (i==2) {
+            dat = codenamesData;
+            game = "Codenames";
+          }else if (i==3) {
+            dat = terraData;
+            game = "Terraforming Mars"
+          }else if (i==4) {
+            dat = gloomhavenData;
+            game = "Gloomhaven";
+          }else if (i==5) {
+            dat = magicData;
+            game = "Magic: the Gathering";
+          } else if (i==6) {
+            dat = dixitData;
+            game = "Dixit";
+          }else if (i==7) {
+            dat = monopolyData;
+            game = "Monopoly";
+          }
+          linesB
+            .append('text')
+            .attr('class', 'game-label')
+            .attr('transform', `translate(${xScaleB(dat[45].date)+10},${yScaleB(dat[45].count)})`)
+            .attr('x', 5)
+            .attr('dy', '0.35em')
+            .style('font-size', '12px')
+            .style('fill', colorScale(i))
+            .text(game);
+        }
+
+
+          let dots = plotB.append('g').attr("id", "symbols-b");
+
+          for (let j = 0; j < 4; j++) {
+            let game = "";
+            let index = 0;
+            if (j == 0) {
+              game = catanData;
+              index = 0;
+            } else if (j == 1) {
+              game = codenamesData;
+              index = 2;
+            }else if (j == 2) {
+              game = terraData;
+              index = 3;
+            }else if (j == 3) {
+              game = gloomhavenData;
+              index = 4;
+            }
+            dots.selectAll(null)
+              .data(game.filter((d, i) => {
+                return (i + 1) % 3 === 0
+              }))
+              .enter()
+              .append("circle")
+              .attr("fill", colorScale(index))
+              .attr("cx", function(d) {return xScaleB(d.date)})
+              .attr("cy", function(d) {return yScaleB(d.count)})
+              .attr("r", 10)
+
+            dots.selectAll(null)
+              .data(game.filter((d, i) => {
+                return (i + 1) % 3 === 0
+              }))
+              .enter()
+              .append("text")
+              .attr("fill", "white")
+              .attr("x", function(d) { return xScaleB(d.date) - 5})
+              .attr("y", function(d) { return yScaleB(d.count) + 5 })
+              .style("font-size",  "10px")
+              .text((d) => d.rank)
+            }
+
+
+          // PLOT C ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+          xScaleC.domain([new Date(d3.min(dates)), new Date(d3.max(dates))]);
+          yScaleC.domain([0, d3.max(allcounts)]);
+          // Add x-axis
+          let xaxisC = plotC
+          .append('g')
+          .attr('id', 'x-axis-c-1')
+          .attr('transform', `translate(0,${height-margin.bottom})`)
+          .call(
+            d3.axisBottom(xScaleC).tickFormat(d3.timeFormat('%b %y')).ticks(d3.timeMonth.every(3))
+          );
+
+        // Add y-axis
+        let yaxisC = plotC
+          .append('g')
+          .attr('id', 'y-axis-c-1')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(d3.axisLeft(yScaleC));
+
+
+         // Add x-axis label
+        xaxisC
+          .append('text')
+          .attr('class', 'x-axis-label')
+          .attr('x', width / 2)
+          .attr('y', margin.bottom)
+          .attr('text-anchor', 'middle')
+          .style("fill", "black")
+          .text('Month');
+
+        // Add y-axis label
+        yaxisC
+          .append('text')
+          .attr('class', 'y-axis-label')
+          .attr('transform', 'translate(40,0), rotate(-90)')
+          .attr('x', -height / 2)
+          .attr('y', -margin.left - 30)
+          .attr('text-anchor', 'middle')
+          .style("fill", "black")
+          .text('Num of Ratings');
+
+        let linesC = plotC.append("g")
+          .attr("id", "lines-c-1")
+
+        const catanlineC = d3.line().x((d) => xScaleC(d.date)).y((d) => yScaleC(d.count));
+        linesC.append("path").attr("d", catanlineC(catanData)).attr("stroke", function(d) { return colorScale(0); }).style("fill" ,"none");
+        linesC.append("path").attr("d", catanlineC(dominionData)).attr("stroke", function(d) { return colorScale(1); }).style("fill" ,"none");
+        linesC.append("path").attr("d", catanlineC(codenamesData)).attr("stroke", function(d) { return colorScale(2); }).style("fill" ,"none");
+        linesC.append("path").attr("d", catanlineC(terraData)).attr("stroke", function(d) { return colorScale(3); }).style("fill" ,"none");
+        linesC.append("path").attr("d", catanlineC(gloomhavenData)).attr("stroke", function(d) { return colorScale(4); }).style("fill" ,"none");
+        linesC.append("path").attr("d", catanlineC(magicData)).attr("stroke", function(d) { return colorScale(5); }).style("fill" ,"none");
+        linesC.append("path").attr("d", catanlineC(dixitData)).attr("stroke", function(d) { return colorScale(6); }).style("fill" ,"none");
+        linesC.append("path").attr("d", catanlineC(monopolyData)).attr("stroke", function(d) { return colorScale(7); }).style("fill" ,"none");
+
+
+        for (let i = 0; i < 8; i++) {
+          let dat = catanData;
+          let game = "Catan";
+          if (i==1){
+            dat = dominionData;
+            game = "Dominion";
+          } else if (i==2) {
+            dat = codenamesData;
+            game = "Codenames";
+          }else if (i==3) {
+            dat = terraData;
+            game = "Terraforming Mars"
+          }else if (i==4) {
+            dat = gloomhavenData;
+            game = "Gloomhaven";
+          }else if (i==5) {
+            dat = magicData;
+            game = "Magic: the Gathering";
+          } else if (i==6) {
+            dat = dixitData;
+            game = "Dixit";
+          }else if (i==7) {
+            dat = monopolyData;
+            game = "Monopoly";
+          }
+          linesC
+            .append('text')
+            .attr('class', 'game-label')
+            .attr('transform', `translate(${xScaleC(dat[45].date)+10},${yScaleC(dat[45].count)})`)
+            .attr('x', 5)
+            .attr('dy', '0.35em')
+            .style('font-size', '12px')
+            .style('fill', colorScale(i))
+            .text(game);
+        }
+
+
+          let dotsC = plotC.append('g').attr("id", "symbols-c-1");
+
+          for (let j = 0; j < 4; j++) {
+            let game = "";
+            let index = 0;
+            if (j == 0) {
+              game = catanData;
+              index = 0;
+            } else if (j == 1) {
+              game = codenamesData;
+              index = 2;
+            }else if (j == 2) {
+              game = terraData;
+              index = 3;
+            }else if (j == 3) {
+              game = gloomhavenData;
+              index = 4;
+            }
+            dotsC.selectAll(null)
+              .data(game.filter((d, i) => {
+                return (i + 1) % 3 === 0
+              }))
+              .enter()
+              .append("circle")
+              .attr("fill", colorScale(index))
+              .attr("cx", function(d) {return xScaleC(d.date)})
+              .attr("cy", function(d) {return yScaleC(d.count)})
+              .attr("r", 10)
+
+            dotsC.selectAll(null)
+              .data(game.filter((d, i) => {
+                return (i + 1) % 3 === 0
+              }))
+              .enter()
+              .append("text")
+              .attr("fill", "white")
+              .attr("x", function(d) { return xScaleC(d.date) - 5})
+              .attr("y", function(d) { return yScaleC(d.count) + 5 })
+              .style("font-size",  "10px")
+              .text((d) => d.rank)
+            }
+
+          // PLOT D ––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––––
+
+          xScaleD.domain([new Date(d3.min(dates)), new Date(d3.max(dates))]);
+          yScaleD.domain([1, d3.max(allcounts)]);
+          // Add x-axis
+          let xaxisD = plotD
+          .append('g')
+          .attr('id', 'x-axis-c-2')
+          .attr('transform', `translate(0,${height-margin.bottom})`)
+          .call(
+            d3.axisBottom(xScaleD).tickFormat(d3.timeFormat('%b %y')).ticks(d3.timeMonth.every(3))
+          );
+
+        // Add y-axis
+        let yaxisD = plotD
+          .append('g')
+          .attr('id', 'y-axis-c-2')
+          .attr('transform', `translate(${margin.left},0)`)
+          .call(d3.axisLeft(yScaleD));
+
+
+         // Add x-axis label
+        xaxisD
+          .append('text')
+          .attr('class', 'x-axis-label')
+          .attr('x', width / 2)
+          .attr('y', margin.bottom)
+          .attr('text-anchor', 'middle')
+          .style("fill", "black")
+          .text('Month');
+
+        // Add y-axis label
+        yaxisD
+          .append('text')
+          .attr('class', 'y-axis-label')
+          .attr('transform', 'rotate(-90)')
+          .attr('x', -height / 2)
+          .attr('y', -90)
+          .attr('text-anchor', 'middle')
+          .style("fill", "black")
+          .text('Num of Ratings');
+
+        let linesD = plotD.append("g")
+          .attr("id", "lines-c-2")
+
+        const catanlineD = d3.line().x((d) => xScaleD(d.date)).y((d) => yScaleD(d.count));
+        linesD.append("path").attr("d", catanlineD(catanData)).attr("stroke", function(d) { return colorScale(0); }).style("fill" ,"none");
+        linesD.append("path").attr("d", catanlineD(dominionData)).attr("stroke", function(d) { return colorScale(1); }).style("fill" ,"none");
+        linesD.append("path").attr("d", catanlineD(codenamesData)).attr("stroke", function(d) { return colorScale(2); }).style("fill" ,"none");
+        linesD.append("path").attr("d", catanlineD(terraData)).attr("stroke", function(d) { return colorScale(3); }).style("fill" ,"none");
+        linesD.append("path").attr("d", catanlineD(gloomhavenData)).attr("stroke", function(d) { return colorScale(4); }).style("fill" ,"none");
+        linesD.append("path").attr("d", catanlineD(magicData)).attr("stroke", function(d) { return colorScale(5); }).style("fill" ,"none");
+        linesD.append("path").attr("d", catanlineD(dixitData)).attr("stroke", function(d) { return colorScale(6); }).style("fill" ,"none");
+        linesD.append("path").attr("d", catanlineD(monopolyData)).attr("stroke", function(d) { return colorScale(7); }).style("fill" ,"none");
+
+
+        for (let i = 0; i < 8; i++) {
+          let dat = catanData;
+          let game = "Catan";
+          if (i==1){
+            dat = dominionData;
+            game = "Dominion";
+          } else if (i==2) {
+            dat = codenamesData;
+            game = "Codenames";
+          }else if (i==3) {
+            dat = terraData;
+            game = "Terraforming Mars"
+          }else if (i==4) {
+            dat = gloomhavenData;
+            game = "Gloomhaven";
+          }else if (i==5) {
+            dat = magicData;
+            game = "Magic: the Gathering";
+          } else if (i==6) {
+            dat = dixitData;
+            game = "Dixit";
+          }else if (i==7) {
+            dat = monopolyData;
+            game = "Monopoly";
+          }
+          linesD
+            .append('text')
+            .attr('class', 'game-label')
+            .attr('transform', `translate(${xScaleD(dat[45].date)+10},${yScaleD(dat[45].count)})`)
+            .attr('x', 5)
+            .attr('dy', '0.35em')
+            .style('font-size', '12px')
+            .style('fill', colorScale(i))
+            .text(game);
+        }
+
+
+          let dotsD = plotD.append('g').attr("id", "symbols-c-2");
+
+          for (let j = 0; j < 4; j++) {
+            let game = "";
+            let index = 0;
+            if (j == 0) {
+              game = catanData;
+              index = 0;
+            } else if (j == 1) {
+              game = codenamesData;
+              index = 2;
+            }else if (j == 2) {
+              game = terraData;
+              index = 3;
+            }else if (j == 3) {
+              game = gloomhavenData;
+              index = 4;
+            }
+            dotsD.selectAll(null)
+              .data(game.filter((d, i) => {
+                return (i + 1) % 3 === 0
+              }))
+              .enter()
+              .append("circle")
+              .attr("fill", colorScale(index))
+              .attr("cx", function(d) {return xScaleD(d.date)})
+              .attr("cy", function(d) {return yScaleD(d.count)})
+              .attr("r", 10)
+
+            dotsD.selectAll(null)
+              .data(game.filter((d, i) => {
+                return (i + 1) % 3 === 0
+              }))
+              .enter()
+              .append("text")
+              .attr("fill", "white")
+              .attr("x", function(d) { return xScaleD(d.date) - 5})
+              .attr("y", function(d) { return yScaleD(d.count) + 5 })
+              .style("font-size",  "10px")
+              .text((d) => d.rank)
+            }
+      });
+  </script>
+  <div id='signature'>nwang334</div>
+</body>
